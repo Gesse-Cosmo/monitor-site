@@ -1,0 +1,27 @@
+name: Monitorar Site
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"  # a cada 10 minutos
+  workflow_dispatch:
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - run: pip install -r requirements.txt
+      - run: python monitor.py
+
+      - name: Salvar hash
+        run: |
+          git config user.name "bot"
+          git config user.email "bot@github.com"
+          git add hash.txt
+          git commit -m "Atualiza hash" || echo "Sem mudanças"
+          git push
