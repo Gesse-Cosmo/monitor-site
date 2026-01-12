@@ -2,7 +2,7 @@ name: Monitorar Site
 
 on:
   schedule:
-    - cron: "*/10 * * * *"  # a cada 10 minutos
+    - cron: "*/2 * * * *"  # a cada 10 minutos
   workflow_dispatch:
 
 jobs:
@@ -17,12 +17,11 @@ jobs:
 
       - run: pip install -r requirements.txt
       - name: Executar monitor
-  run: python monitor.py
-  env:
-    TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-    TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-
-
+        run: python monitor.py
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+  
       - name: Salvar hash
         run: |
           git config user.name "bot"
