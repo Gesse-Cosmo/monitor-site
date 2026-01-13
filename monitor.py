@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import os
 import hashlib
 
-URL = "https://www.vaticannews.va/pt.html"
+URL = "https://noticias.cancaonova.com/"
 
 TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
 TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
