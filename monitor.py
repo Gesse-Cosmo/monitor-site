@@ -1,26 +1,55 @@
 import requests
-import hashlib
+from bs4 import BeautifulSoup
 import os
+import hashlib
 
-URL = "https://www.vaticannews.va/pt.htmlhttps://www.vaticannews.va/pt.html"
+URL = "https://www.vaticannews.va/pt.html"
 
-TOKEN = os.environ["TELEGRAM_TOKEN"]
-CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
+TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
+TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
 
-def enviar(msg):
-    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    requests.post(url, data={"chat_id": CHAT_ID, "text": msg})
+def enviar_telegram(mensagem):
+    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+    payload = {
+        "chat_id": TELEGRAM_CHAT_ID,
+        "text": mensagem
+    }
+    requests.post(url, data=payload)
 
-html = requests.get(URL).text
-hash_atual = hashlib.sha256(html.encode()).hexdigest()
+# Baixa o site
+html = requests.get(URL, timeout=20).text
+soup = BeautifulSoup(html, "html.parser")
 
-try:
-    with open("hash.txt") as f:
+# Pega títulos (h3 funciona bem no Vatican News)
+titulos = [
+    h.text.strip()
+    for h in soup.find_all("h3")
+    if h.text.strip()
+]
+
+conteudo = "\n".join(titulos)
+
+# Gera hash do conteúdo
+hash_atual = hashlib.sha256(conteudo.encode()).hexdigest()
+
+hash_antigo = ""
+if os.path.exists("hash.txt"):
+    with open("hash.txt", "r") as f:
         hash_antigo = f.read()
-except FileNotFoundError:
-    hash_antigo = ""
 
+# Se mudou
 if hash_atual != hash_antigo:
-    enviar("🚨 O site foi atualizado!")
     with open("hash.txt", "w") as f:
         f.write(hash_atual)
+
+    # Descobre títulos novos
+    antigos = set(hash_antigo.split("\n"))
+    novos = titulos[:5]  # pega os primeiros (mais recentes)
+
+    mensagem = "📰 *Novas publicações no Vatican News:*\n\n"
+    for t in novos:
+        mensagem += f"• {t}\n"
+
+    mensagem += f"\n🔗 {URL}"
+
+    enviar_telegram(mensagem)
