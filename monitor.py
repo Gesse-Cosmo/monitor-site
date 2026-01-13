@@ -51,16 +51,9 @@ links_vistos = {n["link"] for n in vistos}
 
 novas = [n for n in unicas if n["link"] not in links_vistos]
 
-primeira_execucao = not os.path.exists(STATE_FILE)
-
 # Salva estado atualizado
 with open(STATE_FILE, "w", encoding="utf-8") as f:
     json.dump(list(unicas), f, ensure_ascii=False, indent=2)
-
-# Se for a primeira vez, NÃO envia mensagens
-if primeira_execucao:
-    print("Primeira execução: estado salvo, nenhuma notificação enviada.")
-    exit(0)
 
 # Envia somente as novas
 for n in novas:
