@@ -1,30 +1,42 @@
-name: Monitorar Site
+name: Monitorar Vatican News
 
 on:
   schedule:
-    - cron: "*/2 * * * *"  # a cada 10 minutos
+    - cron: "*/30 * * * *"   # a cada 30 minutos
   workflow_dispatch:
 
 jobs:
   monitor:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Restaurar cache do estado
+        uses: actions/cache@v4
+        with:
+          path: noticias_vistas.json
+          key: noticias-vistas
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - run: pip install -r requirements.txt
-      - name: Executar monitor
-        run: python monitor.py
+      - name: Instalar dependências
+        run: |
+          pip install -r requirements.txt
+
+      - name: Rodar monitor
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-  
-      - name: Salvar hash como artefato
-        uses: actions/upload-artifact@v4
-        with:
-          name: hash-site
-          path: hash.txt
+        run: |
+          python monitor.py
 
+      - name: Salvar cache do estado
+        uses: actions/cache@v4
+        with:
+          path: noticias_vistas.json
+          key: noticias-vistas
