@@ -6,7 +6,7 @@ import json
 # ======================
 # CONFIGURAÇÃO
 # ======================
-URL = "https://www.vaticannews.va/pt.html"
+URL = "https://www.ufca.edu.br/"
 STATE_FILE = "noticias_vistas.json"
 
 TELEGRAM_TOKEN = os.environ["TELEGRAM_TOKEN"]
